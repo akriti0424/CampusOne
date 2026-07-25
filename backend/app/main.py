@@ -20,13 +20,17 @@ app.add_middleware(
 )
 
 
-@app.api_route("/", methods=["GET", "HEAD"])
+@app.get("/")
 def root() -> dict[str, str]:
     return {
         "status": "ok",
         "app": settings.app_name,
         "health_check": "/api/health",
     }
+
+@app.head("/", include_in_schema=False)
+def root_head():
+    return None
 
 
 @app.get("/api/health")
