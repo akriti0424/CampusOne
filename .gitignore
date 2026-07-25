@@ -10,3 +10,4 @@ frontend/.env
 *.sqlite3
 *.db
 .env.example
+.DS_Store
