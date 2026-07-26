@@ -160,6 +160,8 @@ Render blocks traditional SMTP ports (`25`, `465`, `587`). CampusOne uses **Brev
 
 2. **Run dev server**:
    ```bash
+   alembic upgrade head
+   python -m app.seed
    uvicorn app.main:app --reload --port 8000
    ```
 
@@ -169,10 +171,10 @@ Render blocks traditional SMTP ports (`25`, `465`, `587`). CampusOne uses **Brev
 
 Running `python -m app.seed` populates the database with sample accounts for testing:
 
-| Role | Campus Email | Default Password | Access Level |
-| :--- | :--- | :--- | :--- |
-| **Admin** | `admin@stu.manit.ac.in` | `Admin1234!` | Desk operations, match review, OTP verification console |
-| **Student** | `ananya@stu.manit.ac.in` | `Student1234!` | Marketplace, private lost-and-found, community chat |
+| Role | Campus Email | Access Level |
+| :--- | :--- | :--- |
+| **Admin** | `admin@stu.manit.ac.in` | Desk operations, match review, OTP verification console |
+| **Student** | `ananya@stu.manit.ac.in` | Marketplace, private lost-and-found, community chat |
 
 ---
 
