@@ -40,6 +40,9 @@ const MODULES = [
   { icon: '◌', label: 'Chat', title: 'Live community room', copy: 'Join a realtime room for helpful campus conversation.' },
 ]
 
+const PRODUCT_CATEGORIES = ['Hostel Items', 'Books & Notes', 'Electronics', 'Cycles & Mobility', 'Clothing & Accessories', 'Other']
+const CHAT_ROOMS = ['general', 'marketplace', 'academics', 'hostels']
+
 export default function App() {
   const socketRef = useRef(null)
   const [view, setView] = useState('dashboard')
@@ -218,7 +221,7 @@ export default function App() {
       localStorage.setItem('campusone_user', JSON.stringify(response.user))
       setSession({ token: response.token.access_token, user: response.user })
       setView('dashboard')
-      setStatus(`Welcome, ${response.user.full_name.split(' ')[0]}.`)
+      setStatus(`Welcome back, ${response.user.full_name.split(' ')[0]}! 👋`)
     } catch (error) {
       setStatus(error.message)
     }
@@ -246,7 +249,7 @@ export default function App() {
       localStorage.setItem('campusone_user', JSON.stringify(response.user))
       setSession({ token: response.token.access_token, user: response.user })
       setView('dashboard')
-      setStatus('Email verified. Welcome to CampusOne!')
+      setStatus('Email verified successfully. Welcome to CampusOne! 🎉')
     } catch (error) {
       setStatus(error.message)
     }
@@ -255,7 +258,7 @@ export default function App() {
   async function handleResendOtp() {
     try {
       await api.resendVerification(otpForm.email)
-      setStatus('A new verification code was sent.')
+      setStatus('A new verification code was sent to your inbox.')
     } catch (error) {
       setStatus(error.message)
     }
@@ -270,7 +273,7 @@ export default function App() {
       })
       setProductForm(initialProduct)
       await loadPublicData()
-      setStatus('Marketplace listing published.')
+      setStatus('Marketplace item published successfully.')
     } catch (error) {
       setStatus(error.message)
     }
@@ -292,7 +295,7 @@ export default function App() {
     try {
       const response = await api.requestLostFoundVerification(session.token, itemId)
       await loadPrivateData()
-      setStatus(`Verification code generated for item ${response.item_id}: ${response.verification_code}`)
+      setStatus(`Verification code generated for item #${response.item_id}: ${response.verification_code}`)
     } catch (error) {
       setStatus(error.message)
     }
@@ -302,7 +305,7 @@ export default function App() {
     try {
       await api.resolveLostFound(session.token, itemId)
       await loadPrivateData()
-      setStatus(`Lost/found item ${itemId} resolved successfully.`)
+      setStatus(`Lost/found item #${itemId} marked as resolved.`)
     } catch (error) {
       setStatus(error.message)
     }
@@ -334,7 +337,7 @@ export default function App() {
 
       setVerificationForm({ item_id: '', verification_code: '', desk_notes: '' })
       await loadPrivateData()
-      setStatus(`Lost/found item ${action}d successfully.`)
+      setStatus(`Lost/found item #${itemId} ${action}d successfully.`)
     } catch (error) {
       setStatus(error.message)
     }
@@ -351,7 +354,6 @@ export default function App() {
         setMessages(roomMessages)
       }
       setChatForm((current) => ({ ...current, message: '' }))
-      setStatus('Message posted to the room.')
     } catch (error) {
       setStatus(error.message)
     }
@@ -393,7 +395,13 @@ export default function App() {
               {isAdmin ? <button className={view === 'admin' ? 'active' : ''} type="button" onClick={() => setView('admin')}>Admin</button> : null}
             </div>
           ) : null}
-          {session.user ? <span className="chip">{session.user.full_name}</span> : <span className="chip muted">Guest</span>}
+          {session.user ? (
+            <span className="chip">
+              👤 {session.user.full_name.split(' ')[0]} ({session.user.branch})
+            </span>
+          ) : (
+            <span className="chip muted">Guest Access</span>
+          )}
           {session.token ? (
             <button className="button button-ghost" type="button" onClick={logout}>
               Sign out
@@ -406,11 +414,10 @@ export default function App() {
         {!isLoggedIn ? (
           <section className="hero card landing-hero">
             <div className="hero-copy">
-              <p className="eyebrow">MANIT campus platform</p>
+              <p className="eyebrow">Exclusive Campus Network</p>
               <h2>Verify your campus email, then unlock every module.</h2>
               <p className="hero-text">
-                CampusOne is a clean, modern student platform for buying, lost-and-found, and anonymous chat. New
-                accounts are activated with a code sent to their campus email.
+                CampusOne is a high-performance student platform for buy & sell marketplace, private lost-and-found matching, and real-time community chat.
               </p>
               <div className="step-row">
                 {APP_STEPS.map((step) => (
@@ -421,15 +428,15 @@ export default function App() {
               </div>
               <div className="landing-proof">
                 <span><b>01</b> Campus email</span>
-                <span><b>02</b> OTP verified</span>
-                <span><b>03</b> Ready to connect</span>
+                <span><b>02</b> Resend OTP</span>
+                <span><b>03</b> Direct Access</span>
               </div>
             </div>
 
             <div className="login-panel card-inner">
               <div className="section-head login-head">
                 <div>
-                  <p className="eyebrow">Secure access</p>
+                  <p className="eyebrow">Authentication</p>
                   <h3>{authMode === 'login' ? 'Sign in' : authMode === 'register' ? 'Create account' : 'Verify email'}</h3>
                 </div>
               </div>
@@ -441,28 +448,28 @@ export default function App() {
 
               {authMode === 'login' ? (
                 <form className="form" onSubmit={handleLoginSubmit}>
-                  <Field label="Campus email" name="email" type="email" value={loginForm.email} onChange={onLoginChange} />
-                  <Field label="Password" name="password" type="password" value={loginForm.password} onChange={onLoginChange} />
-                  <button className="button button-primary" type="submit">Login to dashboard <span>→</span></button>
+                  <Field label="Campus Email" name="email" type="email" placeholder="student@stu.manit.ac.in" value={loginForm.email} onChange={onLoginChange} required />
+                  <Field label="Password" name="password" type="password" value={loginForm.password} onChange={onLoginChange} required />
+                  <button className="button button-primary" type="submit">Login to Dashboard <span>→</span></button>
                   <button className="text-button" type="button" onClick={() => setAuthMode('register')}>New to CampusOne? Create an account</button>
                 </form>
               ) : authMode === 'register' ? (
                 <form className="form" onSubmit={handleRegisterSubmit}>
-                  <Field label="Full name" name="full_name" value={registerForm.full_name} onChange={onRegisterChange} required />
+                  <Field label="Full Name" name="full_name" placeholder="Ananya Sharma" value={registerForm.full_name} onChange={onRegisterChange} required />
                   <div className="inline-grid">
-                    <Field label="Scholar ID" name="scholar_id" value={registerForm.scholar_id} onChange={onRegisterChange} required />
-                    <Field label="Branch" name="branch" value={registerForm.branch} onChange={onRegisterChange} required />
+                    <Field label="Scholar ID" name="scholar_id" placeholder="211112001" value={registerForm.scholar_id} onChange={onRegisterChange} required />
+                    <Field label="Branch" name="branch" placeholder="CSE" value={registerForm.branch} onChange={onRegisterChange} required />
                   </div>
-                  <Field label="Campus email" name="email" type="email" value={registerForm.email} onChange={onRegisterChange} required />
+                  <Field label="Campus Email" name="email" type="email" placeholder="ananya@stu.manit.ac.in" value={registerForm.email} onChange={onRegisterChange} required />
                   <Field label="Password" name="password" type="password" minLength="8" value={registerForm.password} onChange={onRegisterChange} required />
-                  <button className="button button-primary" type="submit">Send verification code <span>→</span></button>
+                  <button className="button button-primary" type="submit">Send Verification Code <span>→</span></button>
                   <button className="text-button" type="button" onClick={() => setAuthMode('login')}>Already have an account? Sign in</button>
                 </form>
               ) : (
                 <form className="form" onSubmit={handleVerifyEmail}>
-                  <Field label="Campus email" name="email" type="email" value={otpForm.email} onChange={onOtpChange} required />
-                  <Field label="Six-digit code" name="otp" inputMode="numeric" pattern="[0-9]{6}" maxLength="6" value={otpForm.otp} onChange={onOtpChange} required />
-                  <button className="button button-primary" type="submit">Verify and continue <span>→</span></button>
+                  <Field label="Campus Email" name="email" type="email" value={otpForm.email} onChange={onOtpChange} required />
+                  <Field label="Six-digit Code" name="otp" inputMode="numeric" pattern="[0-9]{6}" maxLength="6" placeholder="123456" value={otpForm.otp} onChange={onOtpChange} required />
+                  <button className="button button-primary" type="submit">Verify & Continue <span>→</span></button>
                   <div className="auth-actions">
                     <button className="text-button" type="button" onClick={handleResendOtp}>Resend code</button>
                     <button className="text-button" type="button" onClick={() => setAuthMode('login')}>Back to login</button>
@@ -470,7 +477,7 @@ export default function App() {
                 </form>
               )}
 
-              <p className="helper auth-helper"><span>✓</span> Only verified @stu.manit.ac.in accounts can sign in.</p>
+              <p className="helper auth-helper"><span>✓</span> Only @stu.manit.ac.in emails are allowed.</p>
               {status ? <p className="status">{status}</p> : null}
             </div>
           </section>
@@ -490,10 +497,10 @@ export default function App() {
           <>
             <section className="hero card dashboard-hero">
               <div className="hero-copy">
-                <p className="eyebrow">Campus dashboard</p>
-                <h2>All modules in one place.</h2>
+                <p className="eyebrow">Campus Workspace</p>
+                <h2>All campus modules in one place.</h2>
                 <p className="hero-text">
-                  Open the marketplace, lost-and-found, and live chat from a single modern workspace.
+                  Browse marketplace deals, manage private lost-and-found reports, and chat anonymously with fellow students in real-time.
                 </p>
               </div>
 
@@ -519,9 +526,9 @@ export default function App() {
 
               {isAdmin ? (
                 <article className="module-card card admin-callout">
-                  <p className="eyebrow">Admin</p>
-                  <h3>Desk dashboard</h3>
-                  <p className="hero-text">Review matches, verify OTPs, and close resolved cases.</p>
+                  <p className="eyebrow">Desk Operations</p>
+                  <h3>Admin Control Panel</h3>
+                  <p className="hero-text">Review match leads, verify OTPs, and manage student reports.</p>
                 </article>
               ) : null}
             </section>
@@ -530,20 +537,20 @@ export default function App() {
               <article className="card auth-card">
                 <div className="section-head">
                   <div>
-                    <p className="eyebrow">Session</p>
-                    <h3>Secure JWT state</h3>
+                    <p className="eyebrow">User Session</p>
+                    <h3>Authenticated Student Profile</h3>
                   </div>
                 </div>
                 <div className="profile-panel">
                   <span className="avatar">{session.user ? session.user.full_name.slice(0, 1) : 'C'}</span>
                   <div>
-                    <strong>{session.user ? session.user.full_name : 'Guest user'}</strong>
-                    <p>{session.user ? `${session.user.branch} • ${session.user.email}` : 'Sign in to unlock private tools.'}</p>
+                    <strong>{session.user ? session.user.full_name : 'Guest User'}</strong>
+                    <p>{session.user ? `${session.user.branch} Branch • ${session.user.email}` : 'Sign in to access private tools.'}</p>
                   </div>
                 </div>
                 <div className="notice">
-                  <strong>Access</strong>
-                  <p>Login → JWT token → authenticated modules.</p>
+                  <strong>Verification Status</strong>
+                  <p>Campus Email Verified • Role: {session.user?.role ?? 'student'}</p>
                 </div>
                 {status ? <p className="status">{status}</p> : null}
               </article>
@@ -551,17 +558,17 @@ export default function App() {
               <article className="card quick-links-card">
                 <div className="section-head">
                   <div>
-                    <p className="eyebrow">Quick actions</p>
-                    <h3>Jump to a module</h3>
+                    <p className="eyebrow">Quick Navigation</p>
+                    <h3>Platform Actions</h3>
                   </div>
                 </div>
                 <div className="quick-links">
                   <button className="button button-ghost" type="button" onClick={() => setView('dashboard')}>
-                    Dashboard
+                    Dashboard View
                   </button>
                   {isAdmin ? (
                     <button className="button button-secondary" type="button" onClick={() => setView('admin')}>
-                      Open admin desk
+                      Open Admin Desk
                     </button>
                   ) : null}
                 </div>
@@ -573,26 +580,33 @@ export default function App() {
                 <div className="section-head">
                   <div>
                     <p className="eyebrow">Marketplace</p>
-                    <h3>Buy and sell with privacy-aware listings</h3>
+                    <h3>Buy & Sell Campus Listings</h3>
                   </div>
                 </div>
 
                 <form className="form compact" onSubmit={handleCreateProduct}>
                   <div className="inline-grid">
-                    <Field label="Title" name="title" value={productForm.title} onChange={onProductChange} />
-                    <Field label="Category" name="category" value={productForm.category} onChange={onProductChange} />
+                    <Field label="Item Title" name="title" placeholder="Engineering Math Textbook" value={productForm.title} onChange={onProductChange} required />
+                    <label className="field">
+                      <span>Category</span>
+                      <select name="category" value={productForm.category} onChange={onProductChange}>
+                        {PRODUCT_CATEGORIES.map((cat) => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                    </label>
                   </div>
-                  <Field label="Description" name="description" value={productForm.description} onChange={onProductChange} textarea />
+                  <Field label="Description" name="description" placeholder="Good condition, 3rd edition..." value={productForm.description} onChange={onProductChange} textarea required />
                   <div className="inline-grid">
-                    <Field label="Price" name="price" type="number" value={productForm.price} onChange={onProductChange} />
-                    <Field label="Image URL" name="image_url" value={productForm.image_url} onChange={onProductChange} />
+                    <Field label="Price (INR ₹)" name="price" type="number" placeholder="450" value={productForm.price} onChange={onProductChange} required />
+                    <Field label="Image URL (Optional)" name="image_url" placeholder="https://..." value={productForm.image_url} onChange={onProductChange} />
                   </div>
                   <label className="checkbox-row">
                     <input type="checkbox" name="negotiable" checked={productForm.negotiable} onChange={onProductChange} />
-                    Negotiable
+                    Price is Negotiable
                   </label>
                   <button className="button button-secondary" type="submit" disabled={!session.token}>
-                    Post item
+                    Post Item for Sale
                   </button>
                 </form>
 
@@ -604,10 +618,9 @@ export default function App() {
                         <p>{product.description}</p>
                       </div>
                       <div className="meta-row">
-                        <span>{product.category}</span>
-                        <span>{product.status}</span>
-                        <span>Rs. {product.price}</span>
-                        <span>{product.seller_name} • {product.seller_branch}</span>
+                        <span>🏷️ {product.category}</span>
+                        <span>₹ {product.price} {product.negotiable ? '(Negotiable)' : ''}</span>
+                        <span>Seller: {product.seller_name} ({product.seller_branch})</span>
                       </div>
                     </article>
                   ))}
@@ -617,34 +630,40 @@ export default function App() {
               <article className="card">
                 <div className="section-head">
                   <div>
-                    <p className="eyebrow">Lost and found</p>
-                    <h3>Private reporting with AI-style matching</h3>
+                    <p className="eyebrow">Lost & Found</p>
+                    <h3>Private Match Reporting</h3>
                   </div>
                 </div>
 
                 <form className="form compact" onSubmit={handleCreateLostFound}>
                   <div className="inline-grid">
-                    <Field label="Title" name="title" value={lostFoundForm.title} onChange={onLostFoundChange} />
-                    <Field label="Kind" name="kind" value={lostFoundForm.kind} onChange={onLostFoundChange} />
+                    <Field label="Item Title" name="title" placeholder="Blue Boat Earphones" value={lostFoundForm.title} onChange={onLostFoundChange} required />
+                    <label className="field">
+                      <span>Report Type</span>
+                      <select name="kind" value={lostFoundForm.kind} onChange={onLostFoundChange}>
+                        <option value="lost">I Lost Something</option>
+                        <option value="found">I Found Something</option>
+                      </select>
+                    </label>
                   </div>
-                  <Field label="Description" name="description" value={lostFoundForm.description} onChange={onLostFoundChange} textarea />
+                  <Field label="Description" name="description" placeholder="Left on table in Library reading hall..." value={lostFoundForm.description} onChange={onLostFoundChange} textarea required />
                   <div className="inline-grid">
-                    <Field label="Location" name="location" value={lostFoundForm.location} onChange={onLostFoundChange} />
-                    <Field label="Image URL" name="image_url" value={lostFoundForm.image_url} onChange={onLostFoundChange} />
+                    <Field label="Location" name="location" placeholder="Library 2nd Floor" value={lostFoundForm.location} onChange={onLostFoundChange} required />
+                    <Field label="Image URL (Optional)" name="image_url" placeholder="https://..." value={lostFoundForm.image_url} onChange={onLostFoundChange} />
                   </div>
                   <button className="button button-secondary" type="submit" disabled={!session.token}>
-                    Submit private report
+                    Submit Private Report
                   </button>
                 </form>
 
                 <div className="split-view">
                   <div>
-                    <h4>My reports</h4>
+                    <h4>My Reports</h4>
                     <div className="list slim">
                       {lostItems.map((item) => (
                         <article className="list-card" key={item.id}>
                           <strong>{item.title}</strong>
-                          <p>{item.location} • {item.kind} • {item.status}</p>
+                          <p>{item.location} • {item.kind.toUpperCase()} • {item.status}</p>
                           <p className="muted">Match score: {item.similarity_score}</p>
                           {item.status === 'open' ? (
                             <button className="button button-ghost" type="button" onClick={() => handleRequestVerification(item.id)}>
@@ -657,7 +676,7 @@ export default function App() {
                   </div>
 
                   <div>
-                    <h4>Match leads</h4>
+                    <h4>Match Suggestions</h4>
                     <div className="list slim">
                       {matches.map((match) => (
                         <article className="list-card" key={match.id}>
@@ -675,30 +694,37 @@ export default function App() {
             <section className="card chat-card">
               <div className="section-head">
                 <div>
-                  <p className="eyebrow">Anonymous community chat</p>
-                  <h3>Fast campus messaging, live over WebSocket</h3>
+                  <p className="eyebrow">Real-Time Chat</p>
+                  <h3>Anonymous Campus Discussion Room</h3>
                 </div>
-                <span className={`badge ${chatStatus}`}>{chatStatus}</span>
+                <span className={`badge ${chatStatus}`}>WebSocket: {chatStatus}</span>
               </div>
 
               <form className="form chat-form" onSubmit={handleSendMessage}>
                 <div className="inline-grid">
-                  <Field label="Room" name="room_name" value={chatForm.room_name} onChange={onChatChange} />
-                  <Field label="Message" name="message" value={chatForm.message} onChange={onChatChange} />
+                  <label className="field">
+                    <span>Chat Room</span>
+                    <select name="room_name" value={chatForm.room_name} onChange={onChatChange}>
+                      {CHAT_ROOMS.map((room) => (
+                        <option key={room} value={room}>#{room}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <Field label="Message" name="message" placeholder="Type a message to the room..." value={chatForm.message} onChange={onChatChange} required />
                 </div>
-                <button className="button button-primary" type="submit" disabled={!session.token}>
-                  Send message
+                <button className="button button-primary" type="submit" disabled={!session.token || !chatForm.message.trim()}>
+                  Send Message
                 </button>
               </form>
 
-              <div className="message-feed">
+              <div className="message-feed slim" style={{ marginTop: '16px' }}>
                 {messages.map((message) => (
                   <article className={`message ${message.is_system ? 'system' : ''}`} key={message.id}>
                     <div>
                       <strong>{message.display_name}</strong>
                       <p>{message.message}</p>
                     </div>
-                    <span>{message.room_name}</span>
+                    <span className="chip muted" style={{ alignSelf: 'flex-start' }}>#{message.room_name}</span>
                   </article>
                 ))}
               </div>

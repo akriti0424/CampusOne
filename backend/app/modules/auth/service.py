@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import hashlib
 import secrets
-import smtplib
-from email.message import EmailMessage
+import httpx
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -65,30 +64,59 @@ def _hash_otp(otp: str) -> str:
 
 
 def send_verification_email(email: str, otp: str) -> None:
-    if not settings.smtp_host or not settings.smtp_from_email:
+    api_key = settings.BREVO_API_KEY or settings.brevo_api_key
+    sender_email = settings.BREVO_SENDER_EMAIL or settings.brevo_sender_email
+
+    # Always log OTP in development mode for easy local debugging
+    if settings.environment.lower() == "development":
+        print(f"\n[DEV MODE OTP LOG] 🔑 Verification code for {email}: {otp}\n")
+
+    if not api_key or not sender_email:
+        if settings.environment.lower() == "development":
+            print("API Key is not set. OTP logged above.")
+            return
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Email delivery is not configured. Set SMTP settings before registration.",
+            detail="Brevo email delivery is not configured. Set BREVO_API_KEY and BREVO_SENDER_EMAIL.",
         )
 
-    message = EmailMessage()
-    message["Subject"] = "Your CampusOne verification code"
-    message["From"] = settings.smtp_from_email
-    message["To"] = email
-    message.set_content(
-        f"Your CampusOne verification code is {otp}. "
-        f"It expires in {settings.email_otp_expire_minutes} minutes."
-    )
+    headers = {
+        "accept": "application/json",
+        "api-key": api_key,
+        "content-type": "application/json",
+    }
+
+    payload = {
+        "sender": {"name": "CampusOne", "email": sender_email},
+        "to": [{"email": email}],
+        "subject": "Your CampusOne verification code",
+        "htmlContent": (
+            f"<div style='font-family: sans-serif; padding: 20px;'>"
+            f"<h2>CampusOne Verification</h2>"
+            f"<p>Your verification code is: <b style='font-size: 20px;'>{otp}</b></p>"
+            f"<p>This code expires in {settings.email_otp_expire_minutes} minutes.</p>"
+            f"</div>"
+        ),
+    }
 
     try:
-        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=15) as smtp:
-            if settings.smtp_use_tls:
-                smtp.starttls()
-            if settings.smtp_username and settings.smtp_password:
-                smtp.login(settings.smtp_username, settings.smtp_password)
-            smtp.send_message(message)
-    except (OSError, smtplib.SMTPException) as error:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Could not send verification email") from error
+        response = httpx.post("https://api.brevo.com/v3/smtp/email", json=payload, headers=headers, timeout=10.0)
+        if response.status_code not in (200, 201, 202):
+            print(f"Brevo API Error ({response.status_code}): {response.text}")
+            if settings.environment.lower() == "development":
+                return
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Could not send verification email",
+            )
+    except Exception as error:
+        print(f"Brevo HTTP Error: {error}")
+        if settings.environment.lower() == "development":
+            return
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Could not send verification email",
+        ) from error
 
 
 def issue_verification_otp(db: Session, pending: PendingRegistration) -> None:
