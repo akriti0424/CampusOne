@@ -90,13 +90,54 @@ def send_verification_email(email: str, otp: str) -> None:
         "sender": {"name": "CampusOne", "email": sender_email},
         "to": [{"email": email}],
         "subject": "Your CampusOne verification code",
-        "htmlContent": (
-            f"<div style='font-family: sans-serif; padding: 20px;'>"
-            f"<h2>CampusOne Verification</h2>"
-            f"<p>Your verification code is: <b style='font-size: 20px;'>{otp}</b></p>"
-            f"<p>This code expires in {settings.email_otp_expire_minutes} minutes.</p>"
-            f"</div>"
-        ),
+        "htmlContent": f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0; padding:0; background-color:#070d19; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#070d19; padding:40px 10px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width:500px; background-color:#0d172a; border:1px solid rgba(255,255,255,0.1); border-radius:20px; box-shadow:0 20px 40px rgba(0,0,0,0.5); overflow:hidden;" border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td style="padding:32px 32px 20px 32px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.08);">
+              <div style="display:inline-block; background:linear-gradient(135deg, #a3f7db, #4dd0a8); color:#031b15; font-size:24px; font-weight:800; width:48px; height:48px; line-height:48px; border-radius:14px; text-align:center; margin-bottom:10px;">C</div>
+              <h1 style="margin:0; color:#f1f5f9; font-size:24px; font-weight:700; letter-spacing:-0.5px;">CampusOne</h1>
+              <p style="margin:4px 0 0 0; color:#94a3b8; font-size:12px; text-transform:uppercase; letter-spacing:1.5px; font-weight:600;">MANIT Campus Platform</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px; text-align:center;">
+              <h2 style="margin:0 0 12px 0; color:#ffffff; font-size:20px; font-weight:600;">Verify Your Email Address</h2>
+              <p style="margin:0 0 24px 0; color:#cbd5e1; font-size:14px; line-height:1.6;">
+                Welcome to <b>CampusOne</b>! Please enter the 6-digit verification code below to complete your registration.
+              </p>
+              <div style="background-color:#040913; border:1px solid rgba(77,208,168,0.3); border-radius:14px; padding:18px 16px; margin:20px 0; display:inline-block; width:82%;">
+                <span style="font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:34px; font-weight:800; letter-spacing:10px; color:#4dd0a8;">{otp}</span>
+              </div>
+              <p style="margin:14px 0 0 0; color:#f5b84a; font-size:13px; font-weight:500;">
+                ⏰ This code will expire in <b>{settings.email_otp_expire_minutes} minutes</b>.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 32px 28px 32px; text-align:center; border-top:1px solid rgba(255,255,255,0.08); background-color:rgba(0,0,0,0.2);">
+              <p style="margin:0 0 6px 0; color:#64748b; font-size:12px;">
+                If you did not request this code, please ignore this email.
+              </p>
+              <p style="margin:0; color:#475569; font-size:12px; font-weight:600;">
+                © CampusOne • Exclusive to @stu.manit.ac.in
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>""",
     }
 
     try:
