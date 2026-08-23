@@ -10,6 +10,7 @@ COPY frontend/index.html ./index.html
 COPY frontend/app.html ./app.html
 COPY frontend/css ./css
 COPY frontend/js ./js
+COPY frontend/public ./public
 COPY frontend/vite.config.js ./vite.config.js
 
 ARG VITE_API_BASE
