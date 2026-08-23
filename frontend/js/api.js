@@ -1,5 +1,5 @@
 /* Shared API client for the CampusOne FastAPI service. */
-const API_BASE = window.CAMPUSONE_API_URL || "http://localhost:8000/api";
+const API_BASE = (import.meta.env.VITE_API_BASE || window.CAMPUSONE_API_BASE || "").replace(/\/$/, "");
 
 const Auth = {
   getToken: () => localStorage.getItem("campusone_token"),
@@ -36,7 +36,7 @@ async function apiRequest(path, { method = "GET", body, auth = true } = {}) {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
-    throw new Error("Couldn't reach the CampusOne server. Is it running on localhost:8000?");
+    throw new Error("Couldn't reach the CampusOne server. Check the API configuration and try again.");
   }
 
   const text = await response.text();
@@ -72,6 +72,11 @@ const Api = {
 
   getChatMessages: (roomName = "general") => apiRequest(`/chat/${encodeURIComponent(roomName)}`),
   postChatMessage: (message, roomName = "general") => apiRequest("/chat", { method: "POST", body: { room_name: roomName, message } }),
+  connectChatSocket: (roomName = "general") => {
+    const socketBase = API_BASE.replace(/^http/, "ws");
+    const token = Auth.getToken();
+    return new WebSocket(`${socketBase}/ws/${encodeURIComponent(roomName)}?token=${encodeURIComponent(token || "")}`);
+  },
 };
 
 function avatarUrl(seed) {

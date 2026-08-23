@@ -5,6 +5,9 @@ Auth.requireAuth();
 let currentUser = Auth.getUser();
 let products = [];
 let communityPollTimer = null;
+let communitySocket = null;
+let communitySocketCloseRequested = false;
+let communityMessages = [];
 const CATEGORIES = ["Books", "Hostel Items", "Electronics", "Cycles & Mobility", "Clothing & Accessories", "Other"];
 
 function initUser() {
@@ -26,12 +29,11 @@ function showView(view) {
   document.querySelectorAll(".nav-item[data-view]").forEach((element) => {
     element.classList.toggle("active", element.dataset.view === view);
   });
-  clearInterval(communityPollTimer);
+  stopCommunityChat();
   if (view === "marketplace") loadProducts();
   if (view === "lostfound") loadMyItems();
   if (view === "community") {
-    loadCommunityMessages();
-    communityPollTimer = setInterval(loadCommunityMessages, 5000);
+    startCommunityChat();
   }
   if (view === "admin") loadAdminUsers();
 }
@@ -227,18 +229,65 @@ document.getElementById("create-item-form").addEventListener("submit", async (ev
   }
 });
 
-async function loadCommunityMessages() {
+function renderCommunityMessages(messages) {
   const element = document.getElementById("community-messages");
+  element.innerHTML = messages.map((message) => {
+    const isMine = (message.author_id && message.author_id === currentUser.id) ||
+      message.display_name.startsWith(currentUser.full_name.split(" ")[0] + " (");
+    return `<div class="chat-bubble ${isMine ? "mine" : "theirs"}"><div style="font-family:var(--font-mono);font-size:10px;opacity:.75;margin-bottom:3px;">${escapeHtml(message.display_name)}</div>${escapeHtml(message.message)}<div class="chat-meta">${timeAgo(message.created_at)}</div></div>`;
+  }).join("");
+  element.scrollTop = element.scrollHeight;
+}
+
+async function loadCommunityMessages() {
   try {
-    const messages = await Api.getChatMessages();
-    element.innerHTML = messages.map((message) => {
-      const isMine = (message.author_id && message.author_id === currentUser.id) ||
-        message.display_name.startsWith(currentUser.full_name.split(" ")[0] + " (");
-      return `<div class="chat-bubble ${isMine ? "mine" : "theirs"}"><div style="font-family:var(--font-mono);font-size:10px;opacity:.75;margin-bottom:3px;">${escapeHtml(message.display_name)}</div>${escapeHtml(message.message)}<div class="chat-meta">${timeAgo(message.created_at)}</div></div>`;
-    }).join("");
-    element.scrollTop = element.scrollHeight;
+    communityMessages = await Api.getChatMessages();
+    renderCommunityMessages(communityMessages);
   } catch (error) {
-    element.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+    document.getElementById("community-messages").innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+  }
+}
+
+function startCommunityFallback() {
+  if (communityPollTimer || communitySocketCloseRequested) return;
+  loadCommunityMessages();
+  communityPollTimer = setInterval(loadCommunityMessages, 5000);
+}
+
+function startCommunityChat() {
+  communitySocketCloseRequested = false;
+  try {
+    communitySocket = Api.connectChatSocket();
+    communitySocket.onmessage = (event) => {
+      const payload = JSON.parse(event.data);
+      if (payload.type === "history") {
+        communityMessages = payload.messages;
+        renderCommunityMessages(communityMessages);
+      }
+      if (payload.type === "message") {
+        communityMessages.push(payload.message);
+        renderCommunityMessages(communityMessages);
+      }
+    };
+    communitySocket.onerror = () => {
+      startCommunityFallback();
+    };
+    communitySocket.onclose = () => {
+      communitySocket = null;
+      if (!communitySocketCloseRequested) startCommunityFallback();
+    };
+  } catch {
+    startCommunityFallback();
+  }
+}
+
+function stopCommunityChat() {
+  clearInterval(communityPollTimer);
+  communityPollTimer = null;
+  communitySocketCloseRequested = true;
+  if (communitySocket) {
+    communitySocket.close();
+    communitySocket = null;
   }
 }
 
@@ -246,9 +295,15 @@ document.getElementById("community-form").addEventListener("submit", async (even
   event.preventDefault();
   const input = document.getElementById("community-input");
   try {
-    await Api.postChatMessage(input.value.trim());
+    const message = input.value.trim();
+    if (!message) return;
+    if (communitySocket?.readyState === WebSocket.OPEN) {
+      communitySocket.send(JSON.stringify({ message }));
+    } else {
+      await Api.postChatMessage(message);
+      await loadCommunityMessages();
+    }
     input.value = "";
-    await loadCommunityMessages();
   } catch (error) {
     alert(error.message);
   }

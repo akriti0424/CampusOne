@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import decode_token
 from app.dependencies import get_current_user
-from app.db.session import SessionLocal, get_db
+from app.db.session import get_db
 from app.modules.auth.model import User
 from app.modules.chat.realtime import manager
 from app.modules.chat.schema import ChatEvent, ChatMessageCreate, ChatMessageRead
@@ -40,13 +40,17 @@ def _get_user_from_token(db: Session, token: str) -> User:
 
 
 @router.websocket("/ws/{room_name}")
-async def websocket_room(room_name: str, websocket: WebSocket, token: str = Query(default="")):
-    db = SessionLocal()
-    try:
-        if not token:
-            await websocket.close(code=1008)
-            return
+async def websocket_room(
+    room_name: str,
+    websocket: WebSocket,
+    token: str = Query(default=""),
+    db: Session = Depends(get_db),
+):
+    if not token:
+        await websocket.close(code=1008)
+        return
 
+    try:
         user = _get_user_from_token(db, token)
         await manager.connect(room_name, websocket)
 
@@ -65,5 +69,3 @@ async def websocket_room(room_name: str, websocket: WebSocket, token: str = Quer
         manager.disconnect(room_name, websocket)
     except HTTPException:
         await websocket.close(code=1008)
-    finally:
-        db.close()
