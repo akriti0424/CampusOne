@@ -98,3 +98,5 @@ window.avatarUrl = avatarUrl;
 window.timeAgo = timeAgo;
 window.escapeHtml = escapeHtml;
 
+export { Auth, Api, avatarUrl, timeAgo, escapeHtml };
+

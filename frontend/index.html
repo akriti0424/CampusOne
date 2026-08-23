@@ -20,8 +20,8 @@
   <div class="auth-form-side">
     <div class="auth-card">
       <div class="auth-tabs">
-        <button id="tab-login" class="active" onclick="switchTab('login')">Log in</button>
-        <button id="tab-signup" onclick="switchTab('signup')">Sign up</button>
+        <button type="button" id="tab-login" class="active">Log in</button>
+        <button type="button" id="tab-signup">Sign up</button>
       </div>
 
       <div id="alert-box"></div>
@@ -85,18 +85,32 @@
 
 <script type="module" src="js/api.js"></script>
 <script type="module">
+  import { Auth, Api, escapeHtml } from './js/api.js';
   if (Auth.getToken()) window.location.href = "app.html";
 
   function switchTab(which) {
-    document.getElementById("tab-login").classList.toggle("active", which === "login");
-    document.getElementById("tab-signup").classList.toggle("active", which === "signup");
-    document.getElementById("login-form").classList.toggle("hidden", which !== "login");
-    document.getElementById("signup-form").classList.toggle("hidden", which !== "signup");
-    document.getElementById("verify-form").classList.add("hidden");
-    document.getElementById("alert-box").innerHTML = "";
+    const loginTab = document.getElementById("tab-login");
+    const signupTab = document.getElementById("tab-signup");
+    const loginForm = document.getElementById("login-form");
+    const signupForm = document.getElementById("signup-form");
+    const verifyForm = document.getElementById("verify-form");
+    const alertBox = document.getElementById("alert-box");
+
+    if (loginTab) loginTab.classList.toggle("active", which === "login");
+    if (signupTab) signupTab.classList.toggle("active", which === "signup");
+    if (loginForm) loginForm.classList.toggle("hidden", which !== "login");
+    if (signupForm) signupForm.classList.toggle("hidden", which !== "signup");
+    if (verifyForm) verifyForm.classList.add("hidden");
+    if (alertBox) alertBox.innerHTML = "";
   }
   window.switchTab = switchTab;
 
+  document.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    if (target.id === "tab-login") switchTab("login");
+    if (target.id === "tab-signup") switchTab("signup");
+  });
 
   function showAlert(message, type = "error") {
     document.getElementById("alert-box").innerHTML =

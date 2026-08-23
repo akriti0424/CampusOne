@@ -1,4 +1,5 @@
 /* CampusOne application UI, backed by the current FastAPI routes. */
+import { Auth, Api, avatarUrl, timeAgo, escapeHtml } from './api.js';
 Auth.requireAuth();
 
 let currentUser = Auth.getUser();
