@@ -75,7 +75,7 @@ const Api = {
   connectChatSocket: (roomName = "general") => {
     const socketBase = API_BASE.replace(/^http/, "ws");
     const token = Auth.getToken();
-    return new WebSocket(`${socketBase}/ws/${encodeURIComponent(roomName)}?token=${encodeURIComponent(token || "")}`);
+    return new WebSocket(`${socketBase}/chat/ws/${encodeURIComponent(roomName)}?token=${encodeURIComponent(token || "")}`);
   },
 };
 
