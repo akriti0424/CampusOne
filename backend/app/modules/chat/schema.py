@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, Field
 from datetime import datetime
 
@@ -13,6 +15,7 @@ class ChatMessageRead(BaseModel):
     display_name: str
     message: str
     is_system: bool
+    author_id: int | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

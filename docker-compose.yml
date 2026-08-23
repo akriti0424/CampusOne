@@ -25,12 +25,8 @@ services:
       DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/campusone
       SECRET_KEY: change-me-in-production
       CORS_ORIGINS: '["http://localhost:5173"]'
-      SMTP_HOST: ${SMTP_HOST:-}
-      SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_USERNAME: ${SMTP_USERNAME:-}
-      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
-      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
-      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      BREVO_SENDER_EMAIL: ${BREVO_SENDER_EMAIL:-}
       EMAIL_OTP_EXPIRE_MINUTES: ${EMAIL_OTP_EXPIRE_MINUTES:-10}
     ports:
       - "8000:8000"

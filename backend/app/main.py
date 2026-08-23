@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.db.base import *  # noqa: F403
-from app.modules.auth.router import router as auth_router
+from app.modules.auth.router import admin_router, router as auth_router
 from app.modules.chat.router import router as chat_router
 from app.modules.lost_found.router import router as lost_found_router
 from app.modules.product.router import router as product_router
@@ -39,6 +39,8 @@ def health() -> dict[str, str]:
 
 
 app.include_router(auth_router)
+app.include_router(admin_router)
 app.include_router(product_router)
 app.include_router(lost_found_router)
 app.include_router(chat_router)
+

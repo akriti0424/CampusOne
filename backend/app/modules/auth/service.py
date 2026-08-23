@@ -172,7 +172,10 @@ def verify_email_otp(db: Session, email: str, otp: str) -> User:
     pending = db.query(PendingRegistration).filter(PendingRegistration.email == email.lower()).first()
     if not pending:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No pending registration found")
-    if pending.email_otp_expires_at < datetime.now(timezone.utc):
+    expires_at = pending.email_otp_expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at < datetime.now(timezone.utc):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Verification code expired")
     if _hash_otp(otp) != pending.email_otp_hash:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid verification code")
@@ -202,3 +205,25 @@ def authenticate_user(db: Session, payload: UserLogin) -> tuple[User, str]:
 
 def public_user_name(user: User) -> str:
     return user.full_name.split()[0] if user.full_name else "Student"
+
+
+def change_user_password(db: Session, user: User, current_password: str, new_password: str) -> None:
+    if not verify_password(current_password, user.password_hash):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Current password is incorrect")
+    user.password_hash = hash_password(new_password)
+    db.commit()
+
+
+def list_all_users_for_admin(db: Session) -> list[User]:
+    return db.query(User).order_by(User.id.asc()).all()
+
+
+def delete_user_by_admin(db: Session, current_admin: User, target_user_id: int) -> None:
+    if current_admin.id == target_user_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin cannot delete their own account")
+    user = db.query(User).filter(User.id == target_user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    db.delete(user)
+    db.commit()
+

@@ -26,6 +26,7 @@ def list_products(db: Session) -> list[dict[str, object]]:
     return [
         {
             "id": product.id,
+            "seller_id": product.seller_id,
             "title": product.title,
             "description": product.description,
             "price": product.price,

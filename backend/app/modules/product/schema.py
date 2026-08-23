@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, Field
 
 
@@ -12,6 +14,7 @@ class ProductCreate(BaseModel):
 
 class ProductRead(BaseModel):
     id: int
+    seller_id: int
     title: str
     description: str
     price: float

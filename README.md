@@ -1,13 +1,13 @@
 # 🎓 CampusOne
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-8.2-646CFF?style=flat-square&logo=vite)](https://vite.dev/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
 [![Brevo](https://img.shields.io/badge/Brevo-HTTP_API-0092FF?style=flat-square)](https://brevo.com)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker)](https://www.docker.com/)
 [![Render Ready](https://img.shields.io/badge/Render-Deployed-46E3B7?style=flat-square&logo=render)](https://render.com)
 
-**CampusOne** is a full-stack, campus-exclusive web application engineered specifically for **MANIT (Maulana Azad National Institute of Technology)** students and alumni. Built with a high-performance **FastAPI + PostgreSQL** backend and a responsive **React + Vite** frontend, CampusOne unifies essential campus utilities into a modern ecosystem.
+**CampusOne** is a full-stack, campus-exclusive web application engineered specifically for **MANIT (Maulana Azad National Institute of Technology)** students and alumni. Built with a high-performance **FastAPI + PostgreSQL** backend and a responsive **HTML/CSS/JavaScript + Vite** frontend, CampusOne unifies essential campus utilities into a modern ecosystem.
 
 ---
 
@@ -31,9 +31,10 @@
 * **Real-time Engine**: FastAPI WebSockets
 
 ### Frontend
-* **Framework**: React 18 with Vite
-* **Styling**: Glassmorphism design system, CSS custom properties, responsive grid math
-* **Typography**: Google Fonts (`Outfit`, `Space Grotesk`, `Inter`)
+* **Build Tool**: Vite
+* **Framework**: Standards-based HTML, CSS, and JavaScript
+* **Styling**: Responsive campus noticeboard design system with CSS custom properties
+* **Typography**: Google Fonts (`Fraunces`, `Inter`, `IBM Plex Mono`)
 
 ### Infrastructure & Deployment
 * **Containerization**: Docker & Docker Compose
@@ -61,11 +62,10 @@ CampusOne/
 │   ├── Dockerfile          # Backend container definition
 │   └── requirements.txt    # Python dependencies (fastapi, httpx, bcrypt, pyjwt)
 ├── frontend/
-│   ├── src/
-│   │   ├── components/     # Reusable UI components (AdminDashboard)
-│   │   ├── App.jsx         # Main application dashboard & router
-│   │   ├── api.js          # Centralized API client service
-│   │   └── styles.css      # Core theme tokens & glassmorphic styling
+│   ├── index.html          # Login, signup, and email-verification page
+│   ├── app.html            # Marketplace, lost-and-found, and community UI
+│   ├── css/style.css       # Core theme and responsive styling
+│   ├── js/                 # API client and application behaviour
 │   ├── Dockerfile          # Frontend container definition
 │   ├── nginx.conf          # Nginx web server config for production
 │   └── package.json        # Node.js dependencies

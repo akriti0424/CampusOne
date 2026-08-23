@@ -22,6 +22,7 @@ def add_product(payload: ProductCreate, db: Session = Depends(get_db), current_u
     product = create_product(db, current_user.id, payload)
     return {
         "id": product.id,
+        "seller_id": product.seller_id,
         "title": product.title,
         "description": product.description,
         "price": product.price,
@@ -50,6 +51,7 @@ def update_status(
     db.refresh(product)
     return {
         "id": product.id,
+        "seller_id": product.seller_id,
         "title": product.title,
         "description": product.description,
         "price": product.price,

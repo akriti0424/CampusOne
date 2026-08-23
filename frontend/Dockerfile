@@ -7,8 +7,11 @@ COPY frontend/package-lock.json* ./
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 COPY frontend/index.html ./index.html
+COPY frontend/app.html ./app.html
+COPY frontend/css ./css
+COPY frontend/js ./js
+COPY frontend/public ./public
 COPY frontend/vite.config.js ./vite.config.js
-COPY frontend/src ./src
 
 ARG VITE_API_URL=http://localhost:8000
 ENV VITE_API_URL=$VITE_API_URL

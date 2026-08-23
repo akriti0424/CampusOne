@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta, timezone
 import hashlib
 import secrets
@@ -108,7 +110,10 @@ def verify_item(db: Session, item_id: int, verification_code: str, desk_notes: s
         raise ValueError("Item not found")
     if not item.verification_code_hash or not item.verification_code_expires_at:
         raise ValueError("Verification has not been requested")
-    if item.verification_code_expires_at < datetime.now(timezone.utc):
+    expires_at = item.verification_code_expires_at
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at < datetime.now(timezone.utc):
         raise ValueError("Verification code expired")
     if _hash_verification_code(verification_code) != item.verification_code_hash:
         raise ValueError("Invalid verification code")
