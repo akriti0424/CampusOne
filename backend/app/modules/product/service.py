@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.modules.auth.service import public_user_name
 from app.modules.product.model import Product
-from app.modules.product.schema import ProductCreate
+from app.modules.product.schema import ProductCreate, ProductUpdate
 
 
 def create_product(db: Session, seller_id: int, payload: ProductCreate) -> Product:
@@ -19,6 +19,32 @@ def create_product(db: Session, seller_id: int, payload: ProductCreate) -> Produ
     db.commit()
     db.refresh(product)
     return product
+
+
+def update_product(db: Session, product_id: int, seller_id: int, payload: ProductUpdate) -> Product | None:
+    product = db.query(Product).filter(Product.id == product_id, Product.seller_id == seller_id).first()
+    if not product:
+        return None
+
+    product.title = payload.title.strip()
+    product.description = payload.description.strip()
+    product.price = payload.price
+    product.category = payload.category.strip()
+    product.negotiable = payload.negotiable
+    product.image_url = payload.image_url
+    db.commit()
+    db.refresh(product)
+    return product
+
+
+def delete_product(db: Session, product_id: int, seller_id: int) -> bool:
+    product = db.query(Product).filter(Product.id == product_id, Product.seller_id == seller_id).first()
+    if not product:
+        return False
+
+    db.delete(product)
+    db.commit()
+    return True
 
 
 def list_products(db: Session) -> list[dict[str, object]]:

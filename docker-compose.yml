@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - campusone_pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -44,7 +44,7 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
       args:
-        VITE_API_BASE: ${VITE_API_BASE}
+        VITE_API_BASE: ${VITE_API_BASE:-http://localhost:8000/api}
     container_name: campusone-frontend
     ports:
       - "5173:80"

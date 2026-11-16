@@ -165,6 +165,37 @@ Render blocks traditional SMTP ports (`25`, `465`, `587`). CampusOne uses **Brev
    uvicorn app.main:app --reload --port 8000
    ```
 
+
+3. **Connect to your database**
+```bash
+docker exec -it campusone-postgres psql -U postgres -d campusone
+\dt
+```
+
+**a. Show registered users**
+```sql
+SELECT id, full_name, email, branch, is_verified FROM users;
+```
+**b. Show marketplace listings**
+```sql
+SELECT id, title, price, status, seller_id FROM products;
+```
+**c. Show the latest chat messages**
+
+```sql
+SELECT room_name, author_id, message
+FROM chat_messages
+ORDER BY created_at DESC
+LIMIT 10;
+```
+
+If results fill the screen and you see `(END)`, press **q** to return to the database prompt.
+
+**8. Exit when finished**
+
+```sql
+\q
+```
 ---
 
 ## 🔑 Seeded Test Accounts
@@ -176,8 +207,179 @@ Running `python -m app.seed` populates the database with sample accounts for tes
 | **Admin** | `admin@stu.manit.ac.in` | Desk operations, match review, OTP verification console |
 | **Student** | `ananya@stu.manit.ac.in` | Marketplace, private lost-and-found, community chat |
 
+## 📚 Placement & OA Prep
+
+The authenticated application includes a Placement & OA Prep module with:
+
+- A systematic study path: **Categories → Subjects → Detailed syllabus topics → Cheat sheets → Quiz/practice → Top 50 questions → Timed OA simulator**.
+- Categories for Core Subjects, Programming & DSA, Logical Reasoning, English & Verbal Ability, and Quantitative Aptitude.
+- Topic and pillar filters for aptitude, reasoning/verbal, CS fundamentals, programming languages, and DSA/coding.
+- MCQ answer checking with explanations and coding prompts with hints and complexity.
+- Every syllabus topic has its own ranked **Top 50** question-and-answer set, displayed as Top #1 through Top #50 inside that topic.
+- Quiz questions are maintained separately from Top 50, so quiz practice presents different questions and remains answerable.
+- Per-user bookmarks, solved/needs-revision status, and readiness summaries.
+- Generated multi-section OA simulators with duration, optional negative marking, attempt answers, scoring, section analytics, and weak-topic review.
+
+The module exposes the curriculum and cheat-sheet catalog through the placement API, so the content can be expanded without changing the navigation model. After running migrations and seed data, open **Placement Prep** from the sidebar. The module uses the same FastAPI, SQLAlchemy/Alembic, token authentication, and frontend styles as the rest of CampusOne.
+
 ---
 
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for details.
+
+
+
+I’ll stop the Docker services cleanly without deleting your database, then give you the exact VS Code presentation startup sequence.
+
+Get Container Tools Configuration
+Completed with input: {}
+
+Ran terminal command: docker compose down && docker compose ps
+
+
+
+## Start again from VS Code
+
+### 1. Open the project in VS Code
+
+```bash
+cd /Users/akriti/CampusOne
+```
+
+You should see files such as:
+
+```text
+backend
+frontend
+docker-compose.yml
+README.md
+```
+
+### 3. Start the full project
+
+Run exactly:
+
+```bash
+docker compose up -d --build
+```
+
+This starts:
+
+- PostgreSQL database
+- FastAPI backend with Uvicorn
+- New frontend with Nginx
+
+Do not run `uvicorn` separately when using Docker.
+
+### 4. Check that everything started
+
+Run:
+
+```bash
+docker compose ps
+```
+
+You should see:
+
+```text
+campusone-postgres
+campusone-backend
+campusone-frontend
+```
+
+The backend should become `healthy`. The frontend may show `starting` briefly.
+
+### 5. Open your presentation frontend
+
+Open this URL:
+
+```text
+http://localhost:5173/
+```
+
+This is your new purple CampusOne landing page.
+
+Use a hard refresh if needed:
+
+```text
+Cmd + Shift + R
+```
+
+### 6. Confirm the backend
+
+Open this in another browser tab:
+
+```text
+http://localhost:8000/docs
+```
+
+You should see the FastAPI Swagger documentation.
+
+You can also check:
+
+```text
+http://localhost:8000/api/health
+```
+
+Expected response:
+
+```json
+{
+  "status": "ok",
+  "app": "CampusOne"
+}
+```
+
+### 7. Show backend logs during the presentation
+
+Open another VS Code terminal and run:
+
+```bash
+cd /Users/akriti/CampusOne
+docker compose logs -f backend
+```
+
+This keeps the backend logs visible and shows OTP messages during signup.
+
+To stop showing logs, press:
+
+```text
+Ctrl + C
+```
+
+This does not stop the application.
+
+### 8. Presentation flow
+
+Open:
+
+```text
+http://localhost:5173/
+```
+
+Then demonstrate:
+
+1. Landing page
+2. Light/dark theme toggle
+3. Login/signup dialog
+4. Signup with an `@stu.manit.ac.in` email
+5. OTP from the backend terminal
+6. Dashboard after verification
+7. Marketplace, lost-and-found, and chat features
+
+### 9. Stop everything after the presentation
+
+Run:
+
+```bash
+docker compose down
+```
+
+Do not use:
+
+```bash
+docker compose down -v
+```
+
+The `-v` option deletes the database volume and stored application data.

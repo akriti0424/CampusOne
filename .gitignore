@@ -11,3 +11,4 @@ frontend/.env
 *.db
 .env.example
 .DS_Store
+backend/.venv312/

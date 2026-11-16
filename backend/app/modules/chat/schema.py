@@ -25,3 +25,12 @@ class ChatEvent(BaseModel):
     type: str
     message: ChatMessageRead | None = None
     messages: list[ChatMessageRead] | None = None
+
+
+
+
+class ConversationRead(BaseModel):
+    room_name: str
+    other_user_name: str
+    last_message: str
+    created_at: datetime

@@ -6,51 +6,98 @@
 <title>CampusOne</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/app-theme.css" />
 </head>
 <body>
 
 <div class="app-shell">
-  <aside class="sidebar">
+  <aside class="sidebar" id="app-sidebar">
     <div class="brand">CampusOne</div>
     <div class="brand-sub">MANIT Gazette &middot; Est. Today</div>
 
-    <div class="nav-item active" data-view="marketplace" onclick="showView('marketplace')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l1-5h16l1 5M3 9v10a1 1 0 001 1h16a1 1 0 001-1V9M3 9h18M9 13v4M15 13v4"/></svg>
-      <span>Marketplace</span>
-    </div>
-    <div class="nav-item" data-view="lostfound" onclick="showView('lostfound')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <span>Lost &amp; Found</span>
-    </div>
-    <div class="nav-item" data-view="community" onclick="showView('community')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
-      <span>Community</span>
-    </div>
-    <div class="nav-item hidden" id="nav-admin" data-view="admin" onclick="showView('admin')">
+<nav class="sidebar-links" aria-label="Main navigation"><button type="button" class="nav-item" data-view="home" onclick="showView('home')"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m3 10 9-7 9 7v11H3zM9 21v-8h6v8"/></svg><span>Home</span></button><button type="button" class="nav-item" data-view="services" onclick="showView('services')"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Services</span></button><button type="button" class="nav-item" data-view="placement" onclick="showView('placement')"><span aria-hidden="true">⌁</span><span>Placement Prep</span></button><button type="button" class="nav-item" data-view="noticeboard" onclick="showView('noticeboard')"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Noticeboard</span></button><button type="button" class="nav-item hidden" id="nav-admin" data-view="admin" onclick="showView('admin')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
       <span>User Management</span>
-    </div>
-
-    <div class="sidebar-footer">
-      <div class="user-chip">
-        <img class="avatar" id="sidebar-avatar" alt="" />
-        <div>
-          <div class="name" id="sidebar-name">—</div>
-          <div class="branch" id="sidebar-branch">—</div>
-        </div>
-      </div>
-      <div class="nav-item" onclick="openChangePasswordModal()" style="margin-top:6px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-        <span>Change password</span>
-      </div>
-      <div class="nav-item" onclick="Auth.logout()" style="margin-top:2px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-        <span>Log out</span>
-      </div>
-    </div>
+    </button></nav><div class="sidebar-bottom">        <button id="theme-toggle" class="theme-toggle" type="button" onclick="toggleTheme()" aria-pressed="false"><span class="theme-icon" aria-hidden="true">☼</span><span class="theme-label">Light theme</span></button>        <button class="user-chip app-profile" type="button" onclick="toggleProfile()" aria-expanded="false" aria-controls="profile-menu">
+          <img class="avatar" id="sidebar-avatar" alt="" />
+          <div>
+            <div class="name" id="sidebar-name">—</div>
+            <div class="branch" id="sidebar-branch">—</div>
+          </div>
+        </button><div id="profile-menu" class="profile-menu hidden">
+      <div class="profile-menu-heading">Student profile</div>
+      <div class="profile-detail"><span>Name</span><strong id="profile-full-name">—</strong></div>
+      <div class="profile-detail"><span>Campus email</span><strong id="profile-email">—</strong></div>
+      <div class="profile-detail"><span>Scholar ID</span><strong id="profile-scholar">—</strong></div>
+      <div class="profile-detail"><span>Branch</span><strong id="profile-branch">—</strong></div>
+      <button class="profile-logout" type="button" onclick="Auth.logout()">Log out</button>
+    </div></div>
   </aside>
 
   <main class="main-board">
+
+    <div class="app-topbar">
+      <div class="app-topbar-leading">
+        <button id="sidebar-toggle" class="sidebar-menu-toggle" type="button" onclick="toggleSidebar()" aria-label="Hide sidebar" aria-pressed="false" aria-expanded="true" aria-controls="app-sidebar">☰</button>
+        <div class="app-topbar-brand">Campus<span>One</span></div>
+      </div>
+    </div>
+
+
+<section id="view-home" aria-labelledby="home-title">
+<div class="services-heading"><div class="eyebrow">Your campus, all connected</div><h1 id="home-title">Welcome to CampusOne.</h1><p>Find what you need, connect with classmates, and keep up with campus life.</p></div>
+<div class="app-module-cards">
+<button class="module-card" onclick="showView('services')"><span class="module-card-icon" aria-hidden="true">▦</span><span><strong>Explore services</strong><small>Marketplace, lost &amp; found, and community chat</small></span></button>
+<button class="module-card" onclick="showView('noticeboard')"><span class="module-card-icon" aria-hidden="true">▤</span><span><strong>Campus noticeboard</strong><small>Academic resources, guides, and useful contacts</small></span></button>
+</div></section>
+    <section class="hidden" id="view-services" aria-labelledby="services-title">
+      <div class="services-heading">
+        <div class="eyebrow">CampusOne services</div>
+        <h1 id="services-title">Services</h1>
+        <p>Everything your campus community needs, in one place.</p>
+      </div>
+
+      <div class="app-module-cards" aria-label="CampusOne modules">
+      <button class="module-card active" data-view="marketplace" onclick="showView('marketplace')">
+        <span class="module-card-icon" aria-hidden="true">▦</span>
+        <span><strong>Buy &amp; Sell</strong><small>Buy and sell with classmates</small></span>
+        <span class="module-card-arrow" aria-hidden="true">↗</span>
+      </button>
+      <button class="module-card" data-view="lostfound" onclick="showView('lostfound')">
+        <span class="module-card-icon" aria-hidden="true">⌕</span>
+        <span><strong>Lost &amp; Found</strong><small>Find what belongs back</small></span>
+        <span class="module-card-arrow" aria-hidden="true">↗</span>
+      </button>
+      <button class="module-card" data-view="community" onclick="showView('community')">
+        <span class="module-card-icon" aria-hidden="true">◌</span>
+        <span><strong>Community Chat</strong><small>Talk campus-wide</small></span>
+        <span class="module-card-arrow" aria-hidden="true">↗</span>
+      </button>
+      <button class="module-card" data-view="placement" onclick="showView('placement')">
+        <span class="module-card-icon" aria-hidden="true">⌁</span>
+        <span><strong>Placement &amp; OA Prep</strong><small>Practice, simulate, and track readiness</small></span>
+        <span class="module-card-arrow" aria-hidden="true">↗</span>
+      </button>
+      </div>
+    </section>
+
+    <section class="noticeboard-section app-noticeboard hidden" id="view-noticeboard" aria-labelledby="noticeboard-title">
+      <div class="noticeboard-heading">
+        <div class="eyebrow">Campus resources</div>
+        <h2 id="noticeboard-title">Noticeboard</h2>
+        <p>Pinned for everyone — portals, calendars and the fun corners of campus.</p>
+      </div>
+      <div class="noticeboard-grid">
+        <a class="notice-card" href="/Academic_Calendar_26_27.pdf" target="_blank" rel="noreferrer"><div class="notice-card-top"><span class="notice-icon" aria-hidden="true">▦</span><span class="notice-tag">PDF</span></div><h3>Academic Calendar</h3><p>Semester schedule, holidays and exam windows.</p><span class="notice-link">Open ↗</span></a>
+        <a class="notice-card" href="https://www.manit.ac.in/" target="_blank" rel="noreferrer"><div class="notice-card-top"><span class="notice-icon" aria-hidden="true">♙</span><span class="notice-tag">MANIT</span></div><h3>Academic Portal</h3><p>Grades, registrations and official records.</p><span class="notice-link">Open ↗</span></a>
+        <a class="notice-card" href="/router_setup_guide.pdf" target="_blank" rel="noreferrer"><div class="notice-card-top"><span class="notice-icon" aria-hidden="true">▤</span><span class="notice-tag">GUIDE</span></div><h3>LAN Information</h3><p>Get the hostel internet working at 2 AM.</p><span class="notice-link">Read ↗</span></a>
+        <a class="notice-card" href="/Telephone%20Directory.pdf" target="_blank" rel="noreferrer"><div class="notice-card-top"><span class="notice-icon" aria-hidden="true">⌕</span><span class="notice-tag">DIRECTORY</span></div><h3>Contacts</h3><p>Wardens, offices and emergency numbers.</p><span class="notice-link">View ↗</span></a>
+        <article class="notice-card"><div class="notice-card-top"><span class="notice-icon" aria-hidden="true">⌑</span><span class="notice-tag">FUN</span></div><h3>Campus Explorer</h3><p>Hidden corners worth skipping a lecture for.</p><span class="notice-link">Explore ↗</span></article>
+        <article class="notice-card"><div class="notice-card-top"><span class="notice-icon" aria-hidden="true">♧</span><span class="notice-tag">FUN</span></div><h3>Facts Generator</h3><p>Things you didn't know about this campus.</p><span class="notice-link">Discover ↗</span></article>
+        <article class="notice-card"><div class="notice-card-top"><span class="notice-icon" aria-hidden="true">▥</span><span class="notice-tag">ARCHIVE</span></div><h3>Time Capsule</h3><p>MANIT through the decades, year by year.</p><span class="notice-link">Browse ↗</span></article>
+        <article class="notice-card"><div class="notice-card-top"><span class="notice-icon" aria-hidden="true">✦</span><span class="notice-tag">CULTURE</span></div><h3>Clubs</h3><p>Every society and community on campus.</p><span class="notice-link">Explore ↗</span></article>
+      </div>
+    </section>
 
     <!-- ===================== MARKETPLACE ===================== -->
     <section id="view-marketplace">
@@ -99,7 +146,7 @@
         <div>
           <div class="eyebrow">Anonymous &middot; Moderated</div>
           <h1>Community Chat</h1>
-          <div class="sub">Talk campus-wide under a random anonymous handle. Be kind.</div>
+          <div class="sub" id="community-sub">Talk campus-wide under a random anonymous handle. Be kind.</div>
         </div>
       </div>
 
@@ -110,6 +157,40 @@
           <button type="submit" class="btn btn-primary btn-sm">Send</button>
         </form>
       </div>
+    </section>
+
+    <!-- ===================== PLACEMENT PREP ===================== -->
+    <section id="view-placement" class="hidden">
+      <div class="board-header">
+        <div>
+          <div class="eyebrow">Placement preparation</div>
+          <h1>Placement &amp; OA Prep</h1>
+          <div class="sub">Build confidence across aptitude, reasoning, CS fundamentals, and DSA.</div>
+        </div>
+      </div>
+      <div id="placement-breadcrumb" class="eyebrow" style="margin-bottom:16px;">Placement Prep / Categories</div>
+      <div id="placement-category-panel" class="grid"></div>
+      <div id="placement-topic-panel" class="grid hidden"></div>
+      <div id="placement-resource-panel" class="hidden">
+        <div class="toolbar">
+          <button class="btn btn-ghost btn-sm" onclick="showPlacementTopics()">← Back to topics</button>
+        </div>
+        <div id="placement-resource-cards" class="grid"></div>
+        <div id="placement-resource-content" class="hidden"></div>
+      </div>
+      <div id="placement-readiness" class="grid hidden" style="margin-top:20px;"></div>
+      <div id="placement-practice-panel" class="hidden">
+        <div class="toolbar">
+          <strong class="eyebrow">Question bank filters</strong>
+          <select id="placement-pillar" onchange="loadPlacementQuestions()"><option value="">All OA pillars</option></select>
+          <select id="placement-topic" onchange="loadPlacementQuestions()"><option value="">All sub-topics</option></select>
+          <select id="placement-difficulty" onchange="loadPlacementQuestions()"><option value="">All difficulties</option></select>
+          <select id="placement-company" onchange="loadPlacementQuestions()"><option value="">All companies</option></select>
+          <select id="placement-format" onchange="loadPlacementQuestions()"><option value="">MCQ + Coding</option><option value="mcq">MCQ</option><option value="coding">Coding</option></select>
+        </div>
+        <div id="placement-question-grid" class="grid"></div>
+      </div>
+      <div id="placement-tests-panel" class="grid hidden"></div>
     </section>
 
     <!-- ===================== ADMIN USER MANAGEMENT ===================== -->
@@ -172,7 +253,7 @@
 <div class="modal-backdrop hidden" id="modal-create-product">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-create-product')">&times;</button>
-    <h2>List an item</h2>
+    <h2 id="product-modal-title">List an item</h2>
     <div id="create-product-alert"></div>
     <form id="create-product-form">
       <div class="field"><label>Title</label><input type="text" id="cp-title" required /></div>
@@ -180,7 +261,7 @@
       <div class="field"><label>Category</label><select id="cp-category"></select></div>
       <div class="field"><label>Price (₹)</label><input type="number" id="cp-price" min="0" step="1" required /></div>
       <div class="field checkbox-row"><input type="checkbox" id="cp-negotiable" /><label for="cp-negotiable" style="margin:0;text-transform:none;font-weight:500;">Open to negotiation</label></div>
-      <button type="submit" class="btn btn-primary btn-block">Post listing</button>
+      <button type="submit" id="product-form-submit" class="btn btn-primary btn-block">Post listing</button>
     </form>
   </div>
 </div>
@@ -230,4 +311,3 @@
 <script type="module" src="js/app.js"></script>
 </body>
 </html>
-

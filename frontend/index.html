@@ -6,13 +6,66 @@
 <title>CampusOne</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/landing.css" />
 </head>
-<body>
+<body class="campus-landing">
+  <header class="landing-nav">
+  <a class="landing-brand" href="#home">
+    Campus<span>One</span>
+  </a>
 
-<div class="auth-page">
+  <nav aria-label="Main navigation">
+    <a href="#home">Home</a>
+    <button
+  id="landing-theme-toggle"
+  class="landing-theme-toggle"
+  type="button"
+  aria-pressed="false"
+>
+  ☼ <span>Light mode</span>
+</button>
+    <a class="landing-button" href="#login" data-auth="login">Log in</a>
+  </nav>
+</header>
+<main class="landing-hero" id="home">
+  <div class="landing-ribbon" aria-hidden="true">
+    <svg viewBox="0 0 600 850" fill="none">
+      <g id="ribbon-lines" stroke="#B8A4FF" stroke-width="1"></g>
+    </svg>
+  </div>
+
+  <div class="landing-copy">
+    <p class="landing-eyebrow">
+      MANIT BHOPAL · STUDENT CAMPUS NETWORK
+    </p>
+
+    <h1>
+      Your campus,<br />
+      <em>all connected.</em>
+    </h1>
+
+    <p class="landing-description">
+      Buy and sell with classmates, find what you lost,
+      and connect with your campus — all in one place.
+    </p>
+
+    <div class="landing-actions">
+      <a class="landing-button" href="#login" data-auth="login">
+        Get started ↘
+      </a>
+      <a class="landing-text-link" href="#signup" data-auth="signup">
+        Sign up →
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<dialog id="auth-dialog" aria-label="Log in or sign up"><div class="auth-topbar"><a class="auth-home" href="#home">← Home</a></div><div class="auth-page" id="auth-section">
   <div class="auth-side">
+    <div class="auth-brand">Campus<span>One.</span></div>
     <div class="eyebrow">MANIT STUDENT NETWORK · CAMPUS-VERIFIED</div>
-    <h1>The noticeboard your campus actually needed.</h1>
+    <h2>The noticeboard your campus actually needed.</h2>
     <p>Buy and sell with classmates, reunite lost items with their owners through
        verified handover, and talk with campus anonymously — all in one place,
        open only to @stu.manit.ac.in.</p>
@@ -20,12 +73,10 @@
 
   <div class="auth-form-side">
     <div class="auth-card">
-      <div class="auth-tabs">
-        <button type="button" id="tab-login" class="active">Log in</button>
-        <button type="button" id="tab-signup">Sign up</button>
-      </div>
+<h2 class="auth-page-title">Welcome back.</h2>
+      <div class="auth-tabs"><button type="button" id="tab-login" class="active">Log in</button><button type="button" id="tab-signup">Sign up</button></div>
 
-      <div id="alert-box"></div>
+      <div id="alert-box" role="status" aria-live="polite"></div>
 
       <!-- LOGIN FORM -->
       <form id="login-form">
@@ -38,6 +89,7 @@
           <input type="password" id="login-password" required />
         </div>
         <button type="submit" class="btn btn-primary btn-block">Log in</button>
+        <button type="button" class="forgot-password-link" id="forgot-password">Forgot password?</button>
       </form>
 
       <!-- SIGNUP FORM -->
@@ -67,6 +119,31 @@
         <button type="submit" class="btn btn-primary btn-block">Create account</button>
       </form>
 
+      <form id="forgot-form" class="hidden">
+        <div class="field">
+          <label for="forgot-email">Campus email</label>
+          <input type="email" id="forgot-email" placeholder="you@stu.manit.ac.in" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Send reset code</button>
+        <button type="button" class="btn btn-ghost btn-block" id="back-to-login">Back to log in</button>
+      </form>
+
+      <form id="reset-form" class="hidden">
+        <div class="field">
+          <label for="reset-email">Campus email</label>
+          <input type="email" id="reset-email" readonly required />
+        </div>
+        <div class="field">
+          <label for="reset-otp">Reset code</label>
+          <input type="text" id="reset-otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required />
+        </div>
+        <div class="field">
+          <label for="reset-password">New password</label>
+          <input type="password" id="reset-password" minlength="8" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Reset password</button>
+      </form>
+
       <form id="verify-form" class="hidden">
         <div class="field">
           <label for="verify-email">Campus email</label>
@@ -84,98 +161,8 @@
   </div>
 </div>
 
-<script type="module" src="js/api.js"></script>
-<script type="module">
-  import { Auth, Api, escapeHtml } from './js/api.js';
-  if (Auth.getToken()) window.location.href = "app.html";
-
-  function switchTab(which) {
-    const loginTab = document.getElementById("tab-login");
-    const signupTab = document.getElementById("tab-signup");
-    const loginForm = document.getElementById("login-form");
-    const signupForm = document.getElementById("signup-form");
-    const verifyForm = document.getElementById("verify-form");
-    const alertBox = document.getElementById("alert-box");
-
-    if (loginTab) loginTab.classList.toggle("active", which === "login");
-    if (signupTab) signupTab.classList.toggle("active", which === "signup");
-    if (loginForm) loginForm.classList.toggle("hidden", which !== "login");
-    if (signupForm) signupForm.classList.toggle("hidden", which !== "signup");
-    if (verifyForm) verifyForm.classList.add("hidden");
-    if (alertBox) alertBox.innerHTML = "";
-  }
-  window.switchTab = switchTab;
-
-  document.addEventListener("click", (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLElement)) return;
-    if (target.id === "tab-login") switchTab("login");
-    if (target.id === "tab-signup") switchTab("signup");
-  });
-
-  function showAlert(message, type = "error") {
-    document.getElementById("alert-box").innerHTML =
-      `<div class="alert alert-${type}">${escapeHtml(message)}</div>`;
-  }
-
-  document.getElementById("login-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("login-email").value;
-    const password = document.getElementById("login-password").value;
-    try {
-      const data = await Api.login({ email, password });
-      Auth.setSession(data.token.access_token, data.user);
-      window.location.href = "app.html";
-    } catch (err) {
-      showAlert(err.message);
-    }
-  });
-
-  document.getElementById("signup-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const payload = {
-      full_name: document.getElementById("signup-name").value,
-      scholar_id: document.getElementById("signup-scholar").value,
-      branch: document.getElementById("signup-branch").value,
-      email: document.getElementById("signup-email").value,
-      password: document.getElementById("signup-password").value,
-    };
-    try {
-      await Api.register(payload);
-      document.getElementById("verify-email").value = payload.email;
-      document.getElementById("login-form").classList.add("hidden");
-      document.getElementById("signup-form").classList.add("hidden");
-      document.getElementById("verify-form").classList.remove("hidden");
-      document.getElementById("tab-login").classList.remove("active");
-      document.getElementById("tab-signup").classList.remove("active");
-      showAlert("We sent a verification code. Enter it below to finish creating your account.", "success");
-    } catch (err) {
-      showAlert(err.message);
-    }
-  });
-
-  document.getElementById("verify-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    try {
-      const data = await Api.verifyEmail({
-        email: document.getElementById("verify-email").value,
-        otp: document.getElementById("verify-otp").value.trim(),
-      });
-      Auth.setSession(data.token.access_token, data.user);
-      window.location.href = "app.html";
-    } catch (err) {
-      showAlert(err.message);
-    }
-  });
-
-  document.getElementById("resend-code").addEventListener("click", async () => {
-    try {
-      await Api.resendVerification(document.getElementById("verify-email").value);
-      showAlert("A new verification code was sent.", "success");
-    } catch (err) {
-      showAlert(err.message);
-    }
-  });
-</script>
+</dialog>
+<script type="module" src="js/auth-pages.js"></script>
+<script type="module" src="js/landing.js"></script>
 </body>
 </html>

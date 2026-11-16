@@ -6,22 +6,32 @@ from app.dependencies import get_current_user
 from app.db.session import get_db
 from app.modules.auth.model import User
 from app.modules.chat.realtime import manager
-from app.modules.chat.schema import ChatEvent, ChatMessageCreate, ChatMessageRead
-from app.modules.chat.service import build_history_payload, build_message_payload, create_message, create_room_message, list_messages, serialize_message
+from app.modules.chat.schema import ChatEvent, ChatMessageCreate, ChatMessageRead, ConversationRead
+from app.modules.chat.service import list_product_conversations, authorize_room, build_history_payload, build_message_payload, create_message, create_room_message, list_direct_conversations, list_messages, serialize_message
 
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 
+
+@router.get("/conversations", response_model=list[ConversationRead])
+def conversations(product_id: int | None = Query(default=None, ge=1), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if product_id is not None:
+        return list_product_conversations(db, current_user, product_id)
+    return list_direct_conversations(db, current_user)
+
+
 @router.get("/{room_name}", response_model=list[ChatMessageRead])
 def read_room(room_name: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    _ = current_user
+    room_name = authorize_room(db, current_user, room_name)
     return list_messages(db, room_name)
 
 
 @router.post("", response_model=ChatMessageRead)
-def send_message(payload: ChatMessageCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return create_message(db, current_user, payload)
+async def send_message(payload: ChatMessageCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    message = create_message(db, current_user, payload)
+    await manager.send_to_room(message.room_name, build_message_payload(message))
+    return message
 
 
 def _get_user_from_token(db: Session, token: str) -> User:
@@ -52,6 +62,7 @@ async def websocket_room(
 
     try:
         user = _get_user_from_token(db, token)
+        room_name = authorize_room(db, user, room_name)
         await manager.connect(room_name, websocket)
 
         history = list_messages(db, room_name)
@@ -69,3 +80,6 @@ async def websocket_room(
         manager.disconnect(room_name, websocket)
     except HTTPException:
         await websocket.close(code=1008)
+
+    finally:
+        manager.disconnect(room_name, websocket)

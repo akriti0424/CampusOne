@@ -12,6 +12,10 @@ class ProductCreate(BaseModel):
     image_url: str | None = None
 
 
+class ProductUpdate(ProductCreate):
+    pass
+
+
 class ProductRead(BaseModel):
     id: int
     seller_id: int

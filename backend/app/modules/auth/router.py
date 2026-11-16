@@ -6,12 +6,14 @@ from app.dependencies import get_current_user, require_admin
 from app.db.session import get_db
 from app.modules.auth.model import PendingRegistration, User
 from app.modules.auth.schema import (
-    AuthResponse, EmailVerificationSubmit, PasswordChangeRequest, RegistrationResponse,
+    AuthResponse, EmailVerificationSubmit, PasswordChangeRequest,
+    RegistrationResponse,
     ResendVerificationRequest, Token, UserCreate, UserLogin, UserRead,
 )
 from app.modules.auth.service import (
     authenticate_user, change_user_password, delete_user_by_admin, issue_verification_otp,
-    list_all_users_for_admin, register_pending_user, verify_email_otp,
+    list_all_users_for_admin, register_pending_user,
+    verify_email_otp,
 )
 
 
@@ -60,6 +62,7 @@ def change_password(
 ):
     change_user_password(db, current_user, payload.current_password, payload.new_password)
     return {"message": "Password changed successfully"}
+
 
 
 @admin_router.get("/users", response_model=list[UserRead])

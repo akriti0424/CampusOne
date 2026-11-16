@@ -214,6 +214,8 @@ def change_user_password(db: Session, user: User, current_password: str, new_pas
     db.commit()
 
 
+
+
 def list_all_users_for_admin(db: Session) -> list[User]:
     return db.query(User).order_by(User.id.asc()).all()
 

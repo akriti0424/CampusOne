@@ -1,5 +1,6 @@
 /* Shared API client for the CampusOne FastAPI service. */
-const API_BASE = (import.meta.env.VITE_API_BASE || window.CAMPUSONE_API_BASE || "").replace(/\/$/, "");
+const configuredApiBase = import.meta.env.VITE_API_BASE || window.CAMPUSONE_API_BASE;
+const API_BASE = (configuredApiBase || (import.meta.env.DEV ? "http://127.0.0.1:8000/api" : "")).replace(/\/$/, "");
 
 const Auth = {
   getToken: () => localStorage.getItem("campusone_token"),
@@ -55,6 +56,8 @@ const Api = {
   verifyEmail: (payload) => apiRequest("/auth/verify-email", { method: "POST", body: payload, auth: false }),
   resendVerification: (email) => apiRequest("/auth/resend-verification", { method: "POST", body: { email }, auth: false }),
   login: (payload) => apiRequest("/auth/login", { method: "POST", body: payload, auth: false }),
+  forgotPassword: (email) => apiRequest("/auth/forgot-password", { method: "POST", body: { email }, auth: false }),
+  resetPassword: (payload) => apiRequest("/auth/reset-password", { method: "POST", body: payload, auth: false }),
   me: () => apiRequest("/auth/me"),
   changePassword: (payload) => apiRequest("/auth/change-password", { method: "POST", body: payload }),
 
@@ -63,7 +66,22 @@ const Api = {
 
   listProducts: () => apiRequest("/products", { auth: false }),
   createProduct: (payload) => apiRequest("/products", { method: "POST", body: payload }),
+  updateProduct: (id, payload) => apiRequest(`/products/${id}`, { method: "PATCH", body: payload }),
+  deleteProduct: (id) => apiRequest(`/products/${id}`, { method: "DELETE" }),
   updateProductStatus: (id, status) => apiRequest(`/products/${id}/status`, { method: "PATCH", body: { status } }),
+  placementMetadata: () => apiRequest("/placement/metadata"),
+  placementCurriculum: () => apiRequest("/placement/curriculum"),
+  placementTopQuestions: (topic = "") => apiRequest(`/placement/top-questions${topic ? `?topic=${encodeURIComponent(topic)}` : ""}`),
+  placementQuizQuestions: (topic = "") => apiRequest(`/placement/quiz-questions${topic ? `?topic=${encodeURIComponent(topic)}` : ""}`),
+  placementQuestions: (params = "") => apiRequest(`/placement/questions${params}`),
+  placementAnswer: (id, answer) => apiRequest(`/placement/questions/${id}/answer`, { method: "POST", body: { answer } }),
+  placementProgress: (id, payload) => apiRequest(`/placement/questions/${id}/progress`, { method: "PATCH", body: payload }),
+  placementTests: () => apiRequest("/placement/tests"),
+  generatePlacementTest: (payload) => apiRequest("/placement/tests/generate", { method: "POST", body: payload }),
+  startPlacementAttempt: (id) => apiRequest(`/placement/tests/${id}/attempts`, { method: "POST" }),
+  savePlacementAnswer: (id, payload) => apiRequest(`/placement/attempts/${id}/answers`, { method: "POST", body: payload }),
+  completePlacementAttempt: (id) => apiRequest(`/placement/attempts/${id}/complete`, { method: "POST" }),
+  placementReadiness: () => apiRequest("/placement/readiness"),
 
   myItems: () => apiRequest("/lost-found/items"),
   createItem: (payload) => apiRequest("/lost-found/items", { method: "POST", body: payload }),
@@ -71,6 +89,7 @@ const Api = {
   requestVerification: (id) => apiRequest(`/lost-found/items/${id}/verification-request`, { method: "POST" }),
 
   getChatMessages: (roomName = "general") => apiRequest(`/chat/${encodeURIComponent(roomName)}`),
+  getConversations: (productId) => apiRequest(`/chat/conversations${productId ? `?product_id=${productId}` : ""}`),
   postChatMessage: (message, roomName = "general") => apiRequest("/chat", { method: "POST", body: { room_name: roomName, message } }),
   connectChatSocket: (roomName = "general") => {
     const socketBase = API_BASE.replace(/^http/, "ws");
@@ -104,4 +123,3 @@ window.timeAgo = timeAgo;
 window.escapeHtml = escapeHtml;
 
 export { Auth, Api, avatarUrl, timeAgo, escapeHtml };
-
